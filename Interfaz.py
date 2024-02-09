@@ -1,5 +1,4 @@
 import tkinter as tk
-from tkinter import ttk
 import threading
 import torch
 import cv2
@@ -55,10 +54,10 @@ class ObjectDetectorApp:
             return
 
         self.is_running_cam1 = True
-        self.thread_cam1 = threading.Thread(target=self.detect_objects_usb)
+        self.thread_cam1 = threading.Thread(target=self.detect_objects_cam1)
         self.thread_cam1.start()
 
-    def detect_objects_usb(self):
+    def detect_objects_cam1(self):
         while self.is_running_cam1:
             ret, frame = self.cap_cam1.read()
 
