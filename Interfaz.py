@@ -6,6 +6,7 @@ import cv2
 import numpy as np
 from PIL import Image, ImageTk
 import pathlib
+import chime
 
 temp = pathlib.PosixPath
 pathlib.PosixPath = pathlib.WindowsPath
@@ -20,24 +21,28 @@ class ObjectDetectorApp:
         self.root.geometry("1280x720")
 
         # Agregar un fondo a la ventana
-        background_image = Image.open("img/disCam.png")  # Reemplaza con la ruta de tu imagen de fondo
+        background_image = Image.open("img/disCam3.png")  # Reemplaza con la ruta de tu imagen de fondo
         background_photo = ImageTk.PhotoImage(background_image)
 
         background_label = tk.Label(root, image=background_photo)
         background_label.image = background_photo
         background_label.place(relwidth=1, relheight=1)
 
-        # Label para mostrar el frame de la cámara USB
+        # Label para mostrar el frame de la CAM 1
         self.cam1_label = tk.Label(root)
         self.cam1_label.place(x=13, y=29)  # Ajusta las coordenadas según tus necesidades
 
-        # Botón para iniciar la cámara USB
-        fondo_button = "#6AA84F"
-        self.active_cam1_button = ttk.Button(root, text="Iniciar CAM 1", command=self.active_cam1)
-        self.active_cam1_button.place(x=1077, y=135)
+
+        # Label para mostrar la imagen de alerta
+        self.alert_label = tk.Label(root)
+        self.alert_label.place(x=1023, y=390)  # Posición de la alerta
+
+        # Botón para iniciar la CAM 1
+        self.active_cam1_button = tk.Button(root, text=" Activar CAM 1", command=self.active_cam1)
+        self.active_cam1_button.place(x=1080, y=175)
 
         self.model = torch.hub.load('ultralytics/yolov5', 'custom',
-                                    path='C:/Users/ASUS VIVOBOOK/PycharmProjects/CustomYolov5/model/best.pt')
+                                    path='model/best.pt')
 
         self.cap_cam1 = None
         self.thread_cam1 = None
@@ -64,6 +69,17 @@ class ObjectDetectorApp:
 
             info = detect.pandas().xyxy[0]  # Obtenemos la información de la detección
             print(info)  # Mostramos la información
+
+            if info['confidence'].max() >= 0.92:
+                chime.theme('pokemon')
+                chime.error(sync=True)
+
+                # Muestra la imagen de alerta
+                alert_image = Image.open("img/alerCam1.png")  # Reemplaza con la ruta de tu imagen de alerta
+                alert_photo = ImageTk.PhotoImage(alert_image)
+                self.alert_label.config(image=alert_photo)
+                self.alert_label.image = alert_photo
+
 
             # Mostramos FPS
             rendered_frame = np.squeeze(detect.render())
